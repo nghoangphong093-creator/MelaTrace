@@ -8,13 +8,13 @@ import path from "path";
 import fs from "fs";
 
 const app = express();
-const PORT = 4000;
+const PORT = process.env.PORT || 4000;
 const JWT_SECRET = process.env.JWT_SECRET || "melatrace-local-secret-change-me";
 const db = new Database(path.join(process.cwd(), "melatrace.db"));
 const uploadDir = path.join(process.cwd(), "uploads");
 fs.mkdirSync(uploadDir, { recursive: true });
 
-app.use(cors({ origin: "http://localhost:5173" }));
+app.use(cors());
 app.use(express.json({ limit: "2mb" }));
 app.use("/uploads", express.static(uploadDir));
 
@@ -280,6 +280,18 @@ const upload = multer({storage:multer.diskStorage({
   destination:uploadDir,
   filename:(req,file,cb)=>cb(null,Date.now()+"-"+file.originalname.replace(/[^a-zA-Z0-9._-]/g,"_"))
 }),limits:{files:3,size:20*1024*1024}});
-app.post("/api/uploads",upload.array("files",3),(req,res)=>res.json({files:req.files.map(f=>"/uploads/"+f.filename)}));
 
-app.listen(PORT,()=>console.log(`MelaTrace API: http://localhost:${PORT}`));
+app.post("/api/uploads",upload.array("files",3),(req,res)=>res.json({
+  files:req.files.map(f=>"/uploads/"+f.filename)
+}));
+
+
+const clientDist = path.join(process.cwd(), "client", "dist");
+
+app.use(express.static(clientDist));
+
+app.get("*", (req, res) => {
+  res.sendFile(path.join(clientDist, "index.html"));
+});
+
+app.listen(PORT,()=>console.log(`MelaTrace API running on port ${PORT}`));
