@@ -6,8 +6,7 @@ import {LayoutDashboard,Leaf,Factory,PackageCheck,FlaskConical,Warehouse,Truck,F
 import {LineChart,Line,XAxis,YAxis,CartesianGrid,Tooltip,Legend,ResponsiveContainer} from "recharts";
 import "./styles.css";
 
-const API="http://localhost:4000/api";
-const api=axios.create({baseURL:API});
+const api=axios.create({baseURL:"/api"});
 api.interceptors.request.use(c=>{const t=localStorage.getItem("melatrace_token");if(t)c.headers.Authorization=`Bearer ${t}`;return c});
 const demoTrace=[
  {key:"material",label:"Vùng trồng",icon:Leaf},
