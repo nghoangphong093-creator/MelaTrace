@@ -285,8 +285,7 @@ app.post("/api/uploads",upload.array("files",3),(req,res)=>res.json({
   files:req.files.map(f=>"/uploads/"+f.filename)
 }));
 
-
-const clientDist = path.join(process.cwd(), "client", "dist");
+const clientDist = path.join(process.cwd(), "..", "client", "dist");
 
 app.use(express.static(clientDist));
 
