@@ -103,15 +103,108 @@ function ReportPage(){
 function Field({label,value,set,type="text",required}){return <label>{label}<input required={required} type={type} value={value} onChange={e=>set(e.target.value)}/></label>}
 
 function AdminLayout(){
+ const location=useLocation();
  const nav=useNavigate();const [open,setOpen]=useState(true);const [q,setQ]=useState("");const [user,setUser]=useState(null);const [results,setResults]=useState([]);
+
  useEffect(()=>{api.get("/auth/me").then(r=>setUser(r.data))},[]);
- useEffect(()=>{if(q.length<2){setResults([]);return}const t=setTimeout(()=>api.get("/admin/search",{params:{q}}).then(r=>setResults(r.data)),250);return()=>clearTimeout(t)},[q]);
+
+ useEffect(()=>{
+  if(q.length<2){setResults([]);return}
+  const t=setTimeout(()=>api.get("/admin/search",{params:{q}}).then(r=>setResults(r.data)),250);
+  return()=>clearTimeout(t)
+ },[q]);
+
  const logout=()=>{localStorage.removeItem("melatrace_token");nav("/login")};
- const menu=[["/admin","Dashboard",LayoutDashboard],["/admin/materials","Nguyên liệu",Leaf],["/admin/production","Sản xuất",Factory],["/admin/products","Sản phẩm",PackageCheck],["/admin/tests","Kiểm nghiệm",FlaskConical],["/admin/storage","Bảo quản",Warehouse],["/admin/distribution","Phân phối",Truck],["/admin/cases","Báo cáo sự cố",FileWarning],["/admin/analytics","Thống kê",BarChart3],["/admin/logs","Nhật ký hoạt động",ScrollText]];
- return <div className="admin-shell"><aside className={open?"sidebar":"sidebar collapsed"}><div className="side-top"><Logo/><button onClick={()=>setOpen(!open)}><Menu/></button></div><nav>{menu.map(([to,label,Icon])=><Link className={location.pathname===to?"active":""} to={to} key={to}><Icon/><span>{label}</span></Link>)}</nav><div className="side-bottom"><button onClick={logout}><LogOut/><span>Đăng xuất</span></button></div></aside>
- <div className="admin-main"><header className="admin-top"><button className="mobile-menu" onClick={()=>setOpen(!open)}><Menu/></button><button onClick={()=>nav(-1)} className="icon-btn"><ArrowLeft/></button><div className="breadcrumb">MelaTrace <ChevronRight size={14}/> Quản trị</div><div className="admin-search"><Search/><input placeholder="Tìm mã sản phẩm, mã lô…" value={q} onChange={e=>setQ(e.target.value)}/>{results.length>0&&<div className="search-results">{results.map(x=><Link key={x.type+x.code} to={x.type==="product"?"/admin/products?code="+x.code:"/admin"} onClick={()=>setQ("")}><b>{x.code}</b><span>{x.name||x.type}</span></Link>)}</div>}</div><div className="top-user"><UserCircle/><span>{user?.name||"Admin"}<small>Administrator</small></span></div></header>
- <Route path="/admin" element={<AdminDashboard/>}/><Route path="/admin/materials" element={<CrudList title="Nguyên liệu" endpoint="materials"/>}/><Route path="/admin/production" element={<CrudList title="Sản xuất" endpoint="production_batches"/>}/><Route path="/admin/products" element={<AdminProducts/>}/><Route path="/admin/tests" element={<CrudList title="Kiểm nghiệm" endpoint="tests"/>}/><Route path="/admin/storage" element={<CrudList title="Bảo quản" endpoint="storage"/>}/><Route path="/admin/distribution" element={<CrudList title="Phân phối" endpoint="distribution"/>}/><Route path="/admin/cases" element={<Cases/>}/><Route path="/admin/cases/:code" element={<CaseDetail/>}/><Route path="/admin/analytics" element={<Analytics/>}/><Route path="/admin/logs" element={<Logs/>}/>
- </Routes></div></div></div>
+
+ const menu=[
+  ["/admin","Dashboard",LayoutDashboard],
+  ["/admin/materials","Nguyên liệu",Leaf],
+  ["/admin/production","Sản xuất",Factory],
+  ["/admin/products","Sản phẩm",PackageCheck],
+  ["/admin/tests","Kiểm nghiệm",FlaskConical],
+  ["/admin/storage","Bảo quản",Warehouse],
+  ["/admin/distribution","Phân phối",Truck],
+  ["/admin/cases","Báo cáo sự cố",FileWarning],
+  ["/admin/analytics","Thống kê",BarChart3],
+  ["/admin/logs","Nhật ký hoạt động",ScrollText]
+ ];
+
+ return <div className="admin-shell">
+  <aside className={open?"sidebar":"sidebar collapsed"}>
+   <div className="side-top">
+    <Logo/>
+    <button onClick={()=>setOpen(!open)}><Menu/></button>
+   </div>
+
+   <nav>
+    {menu.map(([to,label,Icon])=>
+     <Link className={location.pathname===to?"active":""} to={to} key={to}>
+      <Icon/><span>{label}</span>
+     </Link>
+    )}
+   </nav>
+
+   <div className="side-bottom">
+    <button onClick={logout}><LogOut/><span>Đăng xuất</span></button>
+   </div>
+  </aside>
+
+  <div className="admin-main">
+   <header className="admin-top">
+    <button className="mobile-menu" onClick={()=>setOpen(!open)}><Menu/></button>
+    <button onClick={()=>nav(-1)} className="icon-btn"><ArrowLeft/></button>
+
+    <div className="breadcrumb">
+     MelaTrace <ChevronRight size={14}/> Quản trị
+    </div>
+
+    <div className="admin-search">
+     <Search/>
+     <input
+      placeholder="Tìm mã sản phẩm, mã lô…"
+      value={q}
+      onChange={e=>setQ(e.target.value)}
+     />
+
+     {results.length>0&&
+      <div className="search-results">
+       {results.map(x=>
+        <Link
+         key={x.type+x.code}
+         to={x.type==="product"?"/admin/products?code="+x.code:"/admin"}
+         onClick={()=>setQ("")}
+        >
+         <b>{x.code}</b>
+         <span>{x.name||x.type}</span>
+        </Link>
+       )}
+      </div>
+     }
+    </div>
+
+    <div className="top-user">
+     <UserCircle/>
+     <span>{user?.name||"Admin"}<small>Administrator</small></span>
+    </div>
+   </header>
+
+   <div className="admin-content">
+    <Routes>
+     <Route path="/admin" element={<AdminDashboard/>}/>
+     <Route path="/admin/materials" element={<CrudList title="Nguyên liệu" endpoint="materials"/>}/>
+     <Route path="/admin/production" element={<CrudList title="Sản xuất" endpoint="production_batches"/>}/>
+     <Route path="/admin/products" element={<AdminProducts/>}/>
+     <Route path="/admin/tests" element={<CrudList title="Kiểm nghiệm" endpoint="tests"/>}/>
+     <Route path="/admin/storage" element={<CrudList title="Bảo quản" endpoint="storage"/>}/>
+     <Route path="/admin/distribution" element={<CrudList title="Phân phối" endpoint="distribution"/>}/>
+     <Route path="/admin/cases" element={<Cases/>}/>
+     <Route path="/admin/cases/:code" element={<CaseDetail/>}/>
+     <Route path="/admin/analytics" element={<Analytics/>}/>
+     <Route path="/admin/logs" element={<Logs/>}/>
+    </Routes>
+   </div>
+  </div>
+ </div>
 }
 function AdminDashboard(){
  const [s,setS]=useState(null);useEffect(()=>{api.get("/admin/stats").then(r=>setS(r.data))},[]);
