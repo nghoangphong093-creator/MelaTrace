@@ -1,6 +1,6 @@
 import React,{useEffect,useState} from "react";
 import {createRoot} from "react-dom/client";
-import {BrowserRouter,useNavigate,useLocation,Routes,Route,Link} from "react-router-dom";
+import {BrowserRouter,useNavigate,useLocation,Routes,Route,Link,Navigate} from "react-router-dom";
 import axios from "axios";
 import {LayoutDashboard,Leaf,Factory,PackageCheck,FlaskConical,Warehouse,Truck,FileWarning,BarChart3,ScrollText,Search,LogOut,Menu,ArrowLeft,UserCircle,ShieldCheck,MapPin,ChevronRight,CheckCircle2,AlertCircle,Clock3,Eye,Trash2,Plus,Save,RefreshCw} from "lucide-react";
 import {LineChart,Line,XAxis,YAxis,CartesianGrid,Tooltip,Legend,ResponsiveContainer} from "recharts";
